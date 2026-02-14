@@ -15,7 +15,8 @@
         body {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            min-height: 100vh; /* Asegura que cubra la pantalla sin problemas en móviles */
+            width: 100vw;
             background: radial-gradient(circle at bottom, #1b2735 0%, #090a0f 100%);
             overflow: hidden;
             display: flex;
@@ -27,14 +28,19 @@
 
         .step {
             position: absolute;
-            transition: all 1s ease;
-            opacity: 0;
-            pointer-events: none;
-            transform: scale(0.8);
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: all 1s ease;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+            box-sizing: border-box;
         }
 
         .step.active {
@@ -51,6 +57,7 @@
             height: 220px;
             cursor: pointer;
             filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+            transition: transform 0.3s ease; /* Transición suave si cambia de tamaño */
         }
 
         .envelope-body {
@@ -107,6 +114,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-around;
+            align-items: center; /* Centra el contenido internamente */
         }
 
         .envelope-container.open .envelope-flap { transform: rotateX(180deg); z-index: 1; }
@@ -131,6 +139,7 @@
             width: 200px;
             height: 200px;
             perspective: 1000px;
+            transition: transform 0.3s ease;
         }
 
         .cube {
@@ -174,8 +183,8 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 300px; /* Ancho ajustable */
-            max-height: 400px;
+            width: 85vw; /* Hace el ancho responsivo */
+            max-width: 300px; 
             padding: 12px 12px 40px 12px;
             background: white;
             transform: translate(-50%, -50%) scale(0);
@@ -183,12 +192,13 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             opacity: 0;
             z-index: 100;
+            box-sizing: border-box;
         }
 
         .photo-reveal img {
             width: 100%;
-            max-height: 300px;
-            object-fit: contain; /* Esto hace que la imagen no se deforme */
+            max-height: 45vh; /* Se adapta a la altura de la pantalla */
+            object-fit: contain; 
             display: block;
             border: 1px solid #eee;
         }
@@ -205,8 +215,28 @@
             text-align: center;
         }
 
-        .snowflake { position: absolute; top: -10px; color: white; pointer-events: none; animation: fall linear forwards; }
+        .snowflake { position: absolute; top: -10px; color: white; pointer-events: none; animation: fall linear forwards; z-index: 1;}
         @keyframes fall { to { transform: translateY(110vh); } }
+
+        /* --- REGLAS RESPONSIVAS --- */
+        @media (max-width: 360px) {
+            .envelope-container { 
+                transform: scale(0.85); /* Escala el sobre si el teléfono es muy estrecho */
+            }
+        }
+
+        @media (max-height: 600px) {
+            .envelope-container, .gift-container { 
+                transform: scale(0.8); /* Escala los elementos si el teléfono está en horizontal o es bajo */
+            }
+            .photo-reveal img { 
+                max-height: 35vh; 
+            }
+            .instruction {
+                margin-top: 20px;
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -215,8 +245,8 @@
         <div class="envelope-container" onclick="openEnvelope()">
             <div class="envelope-flap"></div>
             <div class="letter">
-                <h2 style="margin:0; color:var(--env-color)">¡Feliz Día!</h2>
-                <p style="font-family: Arial, sans-serif; font-size: 0.9rem;">Iri, quiero hacer presente mi amor con este detalle especial...</p>
+                <h2 style="margin:0; color:var(--env-color)">¡Feliz día de los enamorados!</h2>
+                <p style="font-family: Arial, sans-serif; font-size: 0.9rem;">Iri, quiero hacer presente mi amor con este humilde detalle...</p>
                 <button id="btnNext" class="btn-next" onclick="goToGift(event)">Ver Regalo 💌</button>
             </div>
             <div class="envelope-pocket"></div>
@@ -236,7 +266,7 @@
             </div>
             <div class="photo-reveal">
                 <img src="foto.JPG" alt="Nuestra Foto">
-                <div style="color:#333; font-size:1.6rem; margin-top:10px; text-align:center;">IRI Y GUILLE ❤️</div>
+                <div style="color:#333; font-size:1.6rem; margin-top:10px; text-align: center;">IRI Y GUILLE ❤️</div>
             </div>
         </div>
         <div id="giftInstruction" class="instruction">¡Toca el regalo para abrirlo!</div>
@@ -265,7 +295,7 @@
         }
 
         function createSnowflake() {
-            const icons = ['❤️', '💕', '✨'];
+            const icons = ['❤️', '💕'];
             const s = document.createElement('div');
             s.className = 'snowflake';
             s.innerText = icons[Math.floor(Math.random()*icons.length)];
