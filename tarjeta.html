@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Una Sorpresa Especial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Mountains+of+Christmas:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --env-color: #e74c3c;
+            --env-flap: #c0392b;
+            --bg-dark: #101524;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: radial-gradient(circle at bottom, #1b2735 0%, #090a0f 100%);
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Dancing Script', cursive;
+            perspective: 1200px;
+        }
+
+        .step {
+            position: absolute;
+            transition: all 1s ease;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: scale(1);
+            z-index: 10;
+        }
+
+        /* --- SOBRE --- */
+        .envelope-container {
+            position: relative;
+            width: 320px;
+            height: 220px;
+            cursor: pointer;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
+        }
+
+        .envelope-body {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--env-color);
+            border-radius: 0 0 10px 10px;
+            z-index: 2;
+        }
+        
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 130px solid var(--env-flap);
+            transform-origin: top;
+            transition: transform 0.6s ease 0.2s;
+            z-index: 5;
+        }
+
+        .envelope-pocket {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 160px solid var(--env-color);
+            border-right: 160px solid var(--env-color);
+            border-top: 110px solid transparent;
+            border-bottom: 110px solid #b22c1e;
+            border-radius: 0 0 10px 10px;
+            z-index: 4;
+        }
+
+        .letter {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            height: 190px;
+            background: #fff;
+            border-radius: 5px;
+            z-index: 3;
+            transition: transform 0.8s ease 0.6s;
+            padding: 15px;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+        }
+
+        .envelope-container.open .envelope-flap { transform: rotateX(180deg); z-index: 1; }
+        .envelope-container.open .letter { transform: translateY(-130px); z-index: 6; }
+
+        .btn-next {
+            background: var(--env-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Dancing Script', cursive;
+            font-weight: bold;
+            display: none;
+        }
+
+        .show-btn { display: inline-block !important; }
+
+        /* --- REGALO --- */
+        .gift-container {
+            width: 200px;
+            height: 200px;
+            perspective: 1000px;
+        }
+
+        .cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-20deg) rotateY(45deg);
+            transition: transform 1s;
+            cursor: pointer;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: rotateX(-20deg) rotateY(45deg) translateY(0); }
+            50% { transform: rotateX(-20deg) rotateY(45deg) translateY(-20px); }
+        }
+
+        .face {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: #ffb6b9;
+            border: 2px solid var(--env-color);
+        }
+
+        .face::before { content: ''; position: absolute; width: 30px; height: 100%; background: var(--env-color); left: 50%; transform: translateX(-50%); }
+        .face::after { content: ''; position: absolute; height: 30px; width: 100%; background: var(--env-color); top: 50%; transform: translateY(-50%); }
+
+        .top { transform: rotateX(90deg) translateZ(100px); background: #fff; }
+        .front { transform: translateZ(100px); }
+        .back { transform: rotateY(180deg) translateZ(100px); }
+        .right { transform: rotateY(90deg) translateZ(100px); }
+        .left { transform: rotateY(-90deg) translateZ(100px); }
+
+        .gift-container.opened .cube { animation: none; transform: rotateX(0) rotateY(0); }
+        .gift-container.opened .face { opacity: 0; transition: 0.5s; }
+
+        /* --- FOTO REVELADA --- */
+        .photo-reveal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px; /* Ancho ajustable */
+            max-height: 400px;
+            padding: 12px 12px 40px 12px;
+            background: white;
+            transform: translate(-50%, -50%) scale(0);
+            transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            z-index: 100;
+        }
+
+        .photo-reveal img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: contain; /* Esto hace que la imagen no se deforme */
+            display: block;
+            border: 1px solid #eee;
+        }
+
+        .gift-container.opened .photo-reveal {
+            transform: translate(-50%, -50%) scale(1) rotate(-2deg);
+            opacity: 1;
+        }
+
+        .instruction {
+            margin-top: 50px;
+            color: white;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .snowflake { position: absolute; top: -10px; color: white; pointer-events: none; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(110vh); } }
+    </style>
+</head>
+<body>
+
+    <div id="step1" class="step active">
+        <div class="envelope-container" onclick="openEnvelope()">
+            <div class="envelope-flap"></div>
+            <div class="letter">
+                <h2 style="margin:0; color:var(--env-color)">¡Feliz Día!</h2>
+                <p style="font-family: Arial, sans-serif; font-size: 0.9rem;">Iri, quiero hacer presente mi amor con este detalle especial...</p>
+                <button id="btnNext" class="btn-next" onclick="goToGift(event)">Ver Regalo 💌</button>
+            </div>
+            <div class="envelope-pocket"></div>
+            <div class="envelope-body"></div>
+        </div>
+        <div class="instruction">Toca el sobre para abrirlo</div>
+    </div>
+
+    <div id="step2" class="step">
+        <div class="gift-container" id="gift" onclick="openGift()">
+            <div class="cube">
+                <div class="face front"></div>
+                <div class="face back"></div>
+                <div class="face right"></div>
+                <div class="face left"></div>
+                <div class="face top"></div>
+            </div>
+            <div class="photo-reveal">
+                <img src="foto.JPG" alt="Nuestra Foto">
+                <div style="color:#333; font-size:1.6rem; margin-top:10px; text-align:center;">IRI Y GUILLE ❤️</div>
+            </div>
+        </div>
+        <div id="giftInstruction" class="instruction">¡Toca el regalo para abrirlo!</div>
+    </div>
+
+    <script>
+        function openEnvelope() {
+            document.querySelector('.envelope-container').classList.add('open');
+            setTimeout(() => {
+                document.getElementById('btnNext').classList.add('show-btn');
+            }, 1200);
+        }
+
+        function goToGift(e) {
+            e.stopPropagation();
+            document.getElementById('step1').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('step2').classList.add('active');
+            }, 500);
+        }
+
+        function openGift() {
+            document.getElementById('gift').classList.add('opened');
+            document.getElementById('giftInstruction').innerHTML = "";
+            for(let i=0; i<50; i++) createConfetti();
+        }
+
+        function createSnowflake() {
+            const icons = ['❤️', '💕', '✨'];
+            const s = document.createElement('div');
+            s.className = 'snowflake';
+            s.innerText = icons[Math.floor(Math.random()*icons.length)];
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.fontSize = (Math.random() * 10 + 10) + 'px';
+            s.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            document.body.appendChild(s);
+            setTimeout(() => s.remove(), 5000);
+        }
+        setInterval(createSnowflake, 200);
+
+        function createConfetti() {
+            const c = document.createElement('div');
+            c.style.position = 'absolute';
+            c.style.width = '8px';
+            c.style.height = '8px';
+            c.style.background = ['#ff0', '#f0f', '#0ff', '#f00'][Math.floor(Math.random()*4)];
+            c.style.left = '50%';
+            c.style.top = '50%';
+            document.body.appendChild(c);
+            const x = (Math.random() - 0.5) * 400;
+            const y = (Math.random() - 0.5) * 400;
+            c.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${x}px, ${y}px)`, opacity: 0 }], { duration: 1000, easing: 'ease-out' });
+            setTimeout(() => c.remove(), 1000);
+        }
+    </script>
+</body>
+</html>
